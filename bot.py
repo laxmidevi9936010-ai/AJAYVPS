@@ -202,9 +202,9 @@ Likes Given By Bot: {added}</b>"""
 
         elif added == 0:
             text = f"""<b>Failed to send Likes</b> ❌
-Player Nickname:</b> {nickname}
-Player Uid:</b> {uid}
-Player Region:</b> {server}
+Player Nickname: {nickname}
+Player Uid: {uid}
+Player Region: {server}
 Message: Likes_already_send<b>"""
 
         else:
