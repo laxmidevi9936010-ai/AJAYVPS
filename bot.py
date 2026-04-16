@@ -201,11 +201,11 @@ After Likes: {after}
 Likes Given By Bot: {added}</b>"""
 
         elif added == 0:
-            text = f"""<b> Failed to send Likes ❌
-Player Nickname:: {nickname}
-Player Uid:: {uid}
-Player Region:: {region}
-Message:: Likes_already_send</b>"""
+            text = f"""<b>Failed to send Likes ❌
+Player Nickname: {nickname}
+Player Uid: {uid}
+Player Region: {region}
+Message: Likes_already_send</b>"""
 
         else:
             text = f"""<b>Failed to Send Likes</b> ❌
