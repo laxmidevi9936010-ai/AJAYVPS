@@ -10,7 +10,7 @@ bot = telebot.TeleBot(TOKEN, parse_mode="HTML")
 
 OWNER_ID = 7953454559  # yahan apna Telegram user ID daal
 
-LIKE_API = "https://new-like-api-by-ajay-2.vercel.app/"
+LIKE_API = "https://ff-like-pnx.vercel.app/"
 VISIT_API = "https://visit-api-by-ajay-free.vercel.app/"
 SPAM_API = "YOUR_SPAM_API"
 
@@ -178,7 +178,7 @@ def like(msg):
         m = bot.reply_to(msg, "<b>⏳Sending Likes...</b>")
 
         try:
-            res = requests.get(f"{LIKE_API}/like?uid={uid}&server_name={region}", timeout=10)
+            res = requests.get(f"{LIKE_API}/like?uid={uid}&region={region}&key=PNX", timeout=10)
             r = res.json()
         except:
             bot.edit_message_text("<b>API Error ❌<b>", msg.chat.id, m.message_id)
