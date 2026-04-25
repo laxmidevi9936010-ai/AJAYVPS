@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AJAYVPS — Server</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#0a0d18;--card:#111524;--border:#1e2438;--text:#e6ebf5;--muted:#7a85a0;
+    --primary:#22e39a;--accent:#3ec5ff;--danger:#ff4d6d;--warn:#ffb648}
+  body{font-family:'Inter',system-ui,sans-serif;background:
+    radial-gradient(ellipse at top,rgba(34,227,154,.1),transparent 60%),var(--bg);
+    color:var(--text);min-height:100vh}
+  header{position:sticky;top:0;z-index:30;background:rgba(10,13,24,.85);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border)}
+  .nav{max-width:1300px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;height:56px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800}
+  .brand .logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--accent));
+    display:flex;align-items:center;justify-content:center}
+  .brand .name{background:linear-gradient(135deg,var(--primary),var(--accent));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .icon-btn{background:transparent;border:1px solid var(--border);color:var(--text);
+    padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+  .icon-btn:hover{background:#171c30}
+  main{max-width:1300px;margin:0 auto;padding:24px 20px}
+  .top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:20px}
+  h1{font-size:24px;font-weight:800;letter-spacing:-.02em}
+  .meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+  .dot{width:8px;height:8px;border-radius:50%;background:#555}
+  .dot.run{background:var(--primary);box-shadow:0 0 10px var(--primary);animation:pulse 2s infinite}
+  @keyframes pulse{50%{opacity:.5;transform:scale(1.2)}}
+  .ctrls{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{border:0;padding:9px 14px;border-radius:9px;font-weight:600;font-size:13px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;transition:.2s}
+  .btn:hover{transform:translateY(-1px)}
+  .btn-start{background:linear-gradient(135deg,var(--primary),#16d088);color:#0a0d18;box-shadow:0 0 20px rgba(34,227,154,.3)}
+  .btn-stop{background:#2a2030;color:var(--warn);border:1px solid rgba(255,182,72,.3)}
+  .btn-rest{background:#1a2235;color:var(--accent);border:1px solid rgba(62,197,255,.3)}
+  .btn-del{background:#2a1a22;color:var(--danger);border:1px solid rgba(255,77,109,.3)}
+  .grid{display:grid;gap:16px;grid-template-columns:1fr;margin-top:8px}
+  @media(min-width:900px){.grid{grid-template-columns:340px 1fr}}
+  .panel{background:linear-gradient(160deg,#13182a,#0c1020);border:1px solid var(--border);border-radius:14px;padding:16px}
+  .panel h3{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px;font-weight:600}
+  .upload{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:.2s;font-size:13px;color:var(--muted)}
+  .upload:hover{border-color:var(--primary);color:var(--text)}
+  .files{margin-top:12px;max-height:200px;overflow-y:auto}
+  .file{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--muted)}
+  .file:hover{background:#171c30;color:var(--text)}
+  .file.main{color:var(--primary)}
+  .file .acts{margin-left:auto;display:flex;gap:4px;opacity:0;transition:.2s}
+  .file:hover .acts{opacity:1}
+  .file .acts button{background:transparent;border:0;color:var(--muted);cursor:pointer;padding:2px 6px;border-radius:4px;font-size:11px}
+  .file .acts button:hover{background:#1e2438;color:var(--text)}
+  .pip{display:flex;gap:6px;margin-top:12px}
+  .pip input{flex:1;background:#0d1120;border:1px solid var(--border);color:var(--text);
+    padding:8px 10px;border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;outline:none}
+  .pip input:focus{border-color:var(--primary)}
+  .pip button{background:#1a2235;color:var(--accent);border:1px solid rgba(62,197,255,.3);
+    padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600}
+  .logs{background:#05070d;border:1px solid var(--border);border-radius:14px;padding:14px;
+    height:60vh;min-height:380px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6}
+  .logs .l{color:#cbd5e1;white-space:pre-wrap;word-break:break-word}
+  .logs .l.sys{color:var(--accent)}
+  .logs .l.pip{color:var(--warn)}
+  .logs .l.err{color:var(--danger)}
+  .logs .empty{color:var(--muted);font-style:italic;text-align:center;padding:40px 0}
+  .cur{color:var(--primary);animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .toast{position:fixed;top:20px;right:20px;background:#13182a;border:1px solid var(--border);
+    padding:12px 16px;border-radius:10px;font-size:13px;display:none;z-index:99}
+  .toast.err{border-color:var(--danger);color:var(--danger)}
+  .toast.ok{border-color:var(--primary);color:var(--primary)}
+  .logbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .logbar .ttl{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+  .logbar .conn{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:6px}
+</style>
+</head>
+<body>
+<div id="toast" class="toast"></div>
+<header><div class="nav">
+  <div class="brand"><div class="logo">⚡</div><span>AJAY<span class="name">VPS</span></span></div>
+  <a href="/dashboard" class="icon-btn">← Back</a>
+</div></header>
+<main>
+  <div class="top">
+    <div>
+      <h1 id="sname">Loading…</h1>
+      <div class="meta"><span class="dot" id="sdot"></span><span id="sstat">—</span>
+        <span id="srt" style="color:var(--accent)">—</span></div>
+    </div>
+    <div class="ctrls">
+      <button class="btn btn-start" onclick="ctl('start')">▶ Start</button>
+      <button class="btn btn-stop" onclick="ctl('stop')">■ Stop</button>
+      <button class="btn btn-rest" onclick="ctl('restart')">↻ Restart</button>
+      <button class="btn btn-del" onclick="del()">🗑 Delete</button>
+    </div>
+  </div>
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h3>📁 Files</h3>
+        <label class="upload" for="up">
+          <div style="font-size:22px;margin-bottom:6px">⬆️</div>
+          Upload .py / .js / .html / .zip<br><span style="font-size:11px">(zip auto-extracts)</span>
+        </label>
+        <input id="up" type="file" style="display:none" onchange="upload(event)">
+        <div id="files" class="files"></div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <h3>📦 Install module</h3>
+        <div class="pip">
+          <input id="mod" placeholder="pip install ..." />
+          <button onclick="pipInstall()">Install</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px">
+          Stop the app first. Logs will show install progress.
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="logbar">
+        <div class="ttl">📜 Live logs · AJAYVPS</div>
+        <div class="conn"><span class="dot" id="wsdot"></span><span id="wsstat">connecting…</span>
+          <button class="icon-btn" style="margin-left:8px;padding:4px 8px" onclick="clearLogs()">Clear</button></div>
+      </div>
+      <div id="logs" class="logs"><div class="empty">Waiting for logs…</div></div>
+    </div>
+  </div>
+</main>
+<script>
+const SID="{{ sid }}";
+const T=()=>localStorage.getItem('ajayvps_token');
+if(!T())location.href='/';
+let ws=null;let logsEl=document.getElementById('logs');let firstLog=true;
+const toast=(m,k='err')=>{const t=document.getElementById('toast');t.textContent=m;t.className='toast '+k;t.style.display='block';setTimeout(()=>t.style.display='none',2500)};
+async function api(p,o={}){o.headers={...(o.headers||{}),'Authorization':'Bearer '+T()};
+  if(o.body&&!(o.body instanceof FormData))o.headers['Content-Type']='application/json';
+  const r=await fetch(p,o);if(r.status===401){localStorage.clear();location.href='/';return}
+  const d=r.status===204?{}:await r.json();if(!r.ok)throw new Error(d.detail||'Failed');return d}
+async function loadServer(){
+  try{const list=await api('/api/servers');const s=list.find(x=>x.id===SID);
+    if(!s){toast('Server not found');setTimeout(()=>location.href='/dashboard',1000);return}
+    document.getElementById('sname').textContent=s.name;
+    document.getElementById('sstat').textContent=s.status;
+    document.getElementById('srt').textContent=s.runtime;
+    document.getElementById('sdot').className='dot '+(s.status==='running'?'run':'');
+  }catch(e){toast(e.message)}
+}
+async function loadFiles(){
+  try{const d=await api('/api/servers/'+SID+'/files');const fe=document.getElementById('files');
+    if(!d.files.length){fe.innerHTML='<div style="color:var(--muted);font-size:12px;padding:10px;text-align:center">No files</div>';return}
+    fe.innerHTML=d.files.map(f=>{
+      const isMain=f.path===d.main_file;
+      return `<div class="file ${isMain?'main':''}">
+        <span>${isMain?'⭐':'📄'}</span><span>${f.path}</span>
+        <span style="color:var(--muted);font-size:10px">${(f.size/1024).toFixed(1)}KB</span>
+        <div class="acts">
+          ${!isMain?`<button onclick="setMain('${f.path}')">set main</button>`:''}
+          <button onclick="delFile('${f.path}')">×</button>
+        </div></div>`;
+    }).join('');
+  }catch(e){toast(e.message)}
+}
+async function upload(e){
+  const f=e.target.files[0];if(!f)return;
+  const fd=new FormData();fd.append('file',f);
+  try{await api('/api/servers/'+SID+'/upload',{method:'POST',body:fd});
+    toast('Uploaded '+f.name,'ok');loadFiles();e.target.value='';}catch(e){toast(e.message)}
+}
+async function setMain(p){try{await api('/api/servers/'+SID+'/main',{method:'POST',body:JSON.stringify({main_file:p})});
+  toast('Main file set: '+p,'ok');loadFiles();}catch(e){toast(e.message)}}
+async function delFile(p){if(!confirm('Delete '+p+'?'))return;
+  try{await api('/api/servers/'+SID+'/files/'+encodeURIComponent(p),{method:'DELETE'});loadFiles()}catch(e){toast(e.message)}}
+async function ctl(action){try{await api('/api/servers/'+SID+'/'+action,{method:'POST'});
+  toast(action+' ok','ok');setTimeout(loadServer,500)}catch(e){toast(e.message)}}
+async function del(){if(!confirm('Delete this server permanently?'))return;
+  try{await api('/api/servers/'+SID,{method:'DELETE'});location.href='/dashboard'}catch(e){toast(e.message)}}
+async function pipInstall(){
+  const m=document.getElementById('mod').value.trim().replace(/^pip install /,'');
+  if(!m)return toast('Enter module name');
+  try{const r=await api('/api/servers/'+SID+'/pip',{method:'POST',body:JSON.stringify({module:m})});
+    if(r.ok===false)toast(r.msg||'Stop app first');else{toast('Installing '+m,'ok');document.getElementById('mod').value='';setTimeout(loadServer,500)}
+  }catch(e){toast(e.message)}}
+function clearLogs(){logsEl.innerHTML='';firstLog=true}
+function appendLog(line){
+  if(firstLog){logsEl.innerHTML='';firstLog=false}
+  const d=document.createElement('div');d.className='l';
+  if(line.includes('[AJAYVPS]'))d.classList.add('sys');
+  else if(line.includes('[pip]'))d.classList.add('pip');
+  else if(/error|traceback|exception/i.test(line))d.classList.add('err');
+  d.textContent=line;logsEl.appendChild(d);
+  while(logsEl.children.length>1500)logsEl.removeChild(logsEl.firstChild);
+  logsEl.scrollTop=logsEl.scrollHeight;
+}
+function connectWs(){
+  const proto=location.protocol==='https:'?'wss:':'ws:';
+  const url=`${proto}//${location.host}/ws/logs/${SID}?token=${encodeURIComponent(T())}`;
+  ws=new WebSocket(url);
+  document.getElementById('wsstat').textContent='connecting…';
+  document.getElementById('wsdot').className='dot';
+  ws.onopen=()=>{document.getElementById('wsstat').textContent='live';document.getElementById('wsdot').className='dot run'};
+  ws.onmessage=ev=>appendLog(ev.data);
+  ws.onclose=()=>{document.getElementById('wsstat').textContent='reconnecting…';
+    document.getElementById('wsdot').className='dot';setTimeout(connectWs,2000)};
+  ws.onerror=()=>{try{ws.close()}catch(e){}};
+  // keep-alive
+  setInterval(()=>{try{ws.readyState===1&&ws.send('ping')}catch(e){}},25000);
+}
+loadServer();loadFiles();connectWs();
+setInterval(loadServer,5000);
+</script>
+</body>
+</html>
